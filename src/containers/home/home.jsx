@@ -1,5 +1,5 @@
 import React from 'react';
-import './home.less'
+import styles from './home.less'
 
 class Home extends React.Component {
     constructor() {
@@ -7,8 +7,8 @@ class Home extends React.Component {
     }
     render() {
         return (
-            <div className="container">
-                <div className="group">hhhhhhh</div>
+            <div className={styles.container}>
+                <div className={styles.group}>hhhhhhh</div>
             </div>
         )
     }
