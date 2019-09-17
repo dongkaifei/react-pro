@@ -1,4 +1,5 @@
-import posterImg from '../../public/poster_bg.png';
+import posterImg from '../images/poster_bg.png';
+import { dataURL2ObjUrl } from './utils';
 import QRCode from 'qrcode';
 
 export function drawPotser(canvas, options) {
@@ -21,7 +22,7 @@ export function drawPotser(canvas, options) {
     function getQrcodeUrl(text) {
         return new Promise((resolve, reject) => {
             QRCode.toDataURL(text).then(url => {
-                resolve(loadImg(url))
+                resolve(loadImg(dataURL2ObjUrl(url)))
             }).catch(err => {
                 console.error(err)
                 reject(err)
@@ -34,10 +35,14 @@ export function drawPotser(canvas, options) {
         return new Promise((resolve, reject) => {
             const image = new Image();
             image.src = url;
-            image.crossOrigin = 'anonymous';
+            //if ios9 need disabled
+            // image.crossOrigin = 'anonymous';
             image.onload = () => {
                 resolve(image);
             };
+            image.onerror = (err) => {
+                reject(err);
+            }
         })
     }
 
@@ -64,7 +69,7 @@ export function drawPotser(canvas, options) {
             const qrcodeImg = values[1];
             //添加背景图&qrcode
             drawImg(posterImg, 0, 0, posterImg.width, posterImg.height, 0, 0, canvas.width, canvas.height);
-            drawImg(qrcodeImg, 0, 0, posterImg.width, posterImg.height, 1000, 1940, posterImg.width * 3, posterImg.height * 3);
+            drawImg(qrcodeImg, 0, 0, qrcodeImg.width, qrcodeImg.height, 1000, 1940, qrcodeImg.width * 3, qrcodeImg.height * 3);
             //添加文字
             drawText();
 

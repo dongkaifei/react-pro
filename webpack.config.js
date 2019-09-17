@@ -1,44 +1,41 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-module.exports = {
-    entry: './src/index.js',
-    output: {
-        filename: '[name].[hash].bundle.js',
-        path: path.resolve(__dirname, 'dist')
-    },
-    plugins: [
+const pluginsConfig = () => {
+    return [
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             template: './public/index.html'
+        }),
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+            chunkFilename: '[id].css',
+            ignoreOrder: false, // Enable to remove warnings about conflicting order
         })
-    ],
-    module: {
+    ];
+}
+
+const moduleLoaders = () => {
+    return {
         rules: [
+            // script
             {
-                test: /\.jsx?$/,
+                test: /\.(js|jsx)$/,
                 use: [{
                     loader: 'babel-loader'
                 }],
                 exclude: /node_modules/
             },
+            // css
             {
-                test: /\.css$/,
+                test: /\.(sa|le|c)ss$/,
                 use: [{
-                    loader: 'style-loader',
-                },
-                {
-                    loader: 'css-loader',
+                    loader: MiniCssExtractPlugin.loader,
                     options: {
-                        modules: true
-                    }
-                }]
-            },
-            {
-                test: /\.less$/,
-                use: [{
-                    loader: "style-loader"
+                        hmr: process.env.NODE_ENV === 'development',
+                    },
                 },
                 {
                     loader: "css-loader",
@@ -55,6 +52,7 @@ module.exports = {
                     loader: "postcss-loader"
                 }]
             },
+            // image
             {
                 test: /\.(png|jpg)$/,
                 loader: 'url-loader',
@@ -64,7 +62,17 @@ module.exports = {
                 }
             }
         ]
+    }
+}
+
+module.exports = {
+    entry: './src/index.js',
+    output: {
+        filename: '[name].[hash].bundle.js',
+        path: path.resolve(__dirname, 'dist')
     },
+    plugins: pluginsConfig(),
+    module: moduleLoaders(),
 
     //开发配置
     devServer: {
