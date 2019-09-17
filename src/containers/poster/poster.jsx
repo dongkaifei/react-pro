@@ -5,7 +5,6 @@ import { drawPotser } from '../../libs/poster';
 class Poster extends React.Component {
     constructor(props) {
         super(props);
-        //init state
         this.state = {
             imgUrl: ""
         }
