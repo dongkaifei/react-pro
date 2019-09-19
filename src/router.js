@@ -1,14 +1,23 @@
-import React from "react"
+import React, { Suspense, lazy } from "react"
 import { Switch, Route } from 'react-router'
-import Home from "./containers/home/home.jsx"
-import Poster from "./containers/poster/poster.jsx"
+
+const Poster = lazy(() => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(import(/* webpackChunkName: "poster" */ "./containers/poster/poster.jsx"))
+        }, 3000)
+    })
+});
+const Home = lazy(() => import(/* webpackChunkName: "home" */  "./containers/home/home.jsx"));
 
 const routers = () => {
     return (
-        <Switch>
-            <Route exact path="/" component={Poster} />
-            <Route path="/home" component={Home} />
-        </Switch>
+        <Suspense fallback={<div>Loading...</div>}>
+            <Switch>
+                <Route exact path="/" component={Poster} />
+                <Route path="/home" component={Home} />
+            </Switch>
+        </Suspense>
     )
 }
 
