@@ -10,8 +10,8 @@ const pluginsConfig = () => {
             template: './public/index.html'
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[id].css',
+            filename: '[name].[hash].css',
+            chunkFilename: '[id].[hash].css',
             ignoreOrder: false, // Enable to remove warnings about conflicting order
         })
     ];
@@ -69,10 +69,27 @@ module.exports = {
     entry: './src/index.js',
     output: {
         filename: '[name].[hash].bundle.js',
+        chunkFilename: '[name].[hash].bundle.js',
         path: path.resolve(__dirname, 'dist')
     },
+    devtool: 'cheap-source-map', //是否开启map
     plugins: pluginsConfig(),
     module: moduleLoaders(),
+
+    //code split， [node_modules,react,react-dom] all build in vendor
+    optimization: {
+        splitChunks: {
+            chunks: 'all',
+            automaticNameDelimiter: '^', //分隔符
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+                    name: 'vendor',
+                    chunks: 'all',
+                }
+            }
+        }
+    },
 
     //开发配置
     devServer: {
@@ -80,6 +97,12 @@ module.exports = {
         allowedHosts: [
             'test.com'
         ],  //开发域名白名单
+        proxy: {
+            // "/api": {
+            //     target: "http://localhost:3000",
+            //     pathRewrite: { "^/api": "" }
+            // }
+        }, //配置开发代理
         historyApiFallback: true, //histrory模式下需要设置成true
         open: false,   //是否需要自动打开浏览器
         port: 8080
