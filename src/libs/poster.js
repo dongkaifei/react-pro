@@ -62,7 +62,7 @@ export function drawPotser(canvas, options) {
         ctx.restore();
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const promiseArr = [loadImg(BACKGROUND_IMG), getQrcodeUrl(QRCODE_TEXT)]
         Promise.all(promiseArr).then(values => {
             const posterImg = values[0];
