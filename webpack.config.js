@@ -2,35 +2,48 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const NyanProgressPlugin = require('nyan-progress-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const pluginsConfig = () => {
     return [
         new CleanWebpackPlugin(),
+        // new NyanProgressPlugin({
+        //     restoreCursorPosition: true,
+        //     nyanCatSays: () => "hello c!"
+        // }),
         new HtmlWebpackPlugin({
             template: './public/index.html'
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].[hash].css',
-            chunkFilename: '[id].[hash].css',
+            filename: 'css/[name].[hash].css',
+            chunkFilename: 'css/[name].[hash].css',
             ignoreOrder: false, // Enable to remove warnings about conflicting order
-        })
+        }),
+        new CopyPlugin([
+            {
+                from: 'public/',
+                to: ''
+            }
+        ])
     ];
 }
 
 const moduleLoaders = () => {
     return {
         rules: [
-            // script
             {
                 test: /\.(js|jsx)$/,
+                exclude: /node_modules/,
                 use: [{
                     loader: 'babel-loader'
-                }],
-                exclude: /node_modules/
+                }, {
+                    loader: 'eslint-loader'
+                }]
             },
-            // css
             {
                 test: /\.(sa|le|c)ss$/,
+                exclude: /node_modules/,
                 use: [{
                     loader: MiniCssExtractPlugin.loader,
                     options: {
@@ -46,13 +59,25 @@ const moduleLoaders = () => {
                     }
                 },
                 {
-                    loader: "less-loader"
+                    loader: "postcss-loader"
                 },
                 {
-                    loader: "postcss-loader"
+                    loader: "less-loader"
                 }]
             },
-            // image
+            {//antd样式处理
+                test: /\.css$/,
+                exclude: /src/,
+                use: [
+                    { loader: "style-loader", },
+                    {
+                        loader: "css-loader",
+                        options: {
+                            importLoaders: 1
+                        }
+                    }
+                ]
+            },
             {
                 test: /\.(png|jpg)$/,
                 loader: 'url-loader',
@@ -66,18 +91,23 @@ const moduleLoaders = () => {
 }
 
 module.exports = {
-    entry: './src/index.js',
+    entry: [
+        "core-js/modules/es6.promise",
+        "core-js/modules/es6.array.iterator",
+        "./src/index.js"
+    ],
     output: {
-        filename: '[name].[hash].bundle.js',
-        chunkFilename: '[name].[hash].bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        filename: 'js/[name].[hash].js',
+        chunkFilename: 'js/[name].[hash].js',
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: '/'
     },
-    devtool: 'cheap-source-map', //是否开启map
+    //devtool: 'cheap-source-map', //是否开启map
     plugins: pluginsConfig(),
     module: moduleLoaders(),
 
-    //code split， [node_modules,react,react-dom] all build in vendor
     optimization: {
+        //code split， [node_modules,react,react-dom] all build in vendor
         splitChunks: {
             chunks: 'all',
             automaticNameDelimiter: '^', //分隔符
@@ -93,18 +123,24 @@ module.exports = {
 
     //开发配置
     devServer: {
-        contentBase: path.join(__dirname, "dist"),
-        allowedHosts: [
-            'test.com'
-        ],  //开发域名白名单
-        proxy: {
-            // "/api": {
-            //     target: "http://localhost:3000",
-            //     pathRewrite: { "^/api": "" }
-            // }
-        }, //配置开发代理
+        // allowedHosts: [
+        //   'dkf.dev.demo.com'
+        // ],  //开发域名白名单
+        // sockHost: "dkf.dev.demo.com",
+        disableHostCheck: true,
+        // proxy: {
+        //   "/logic/v1": {
+        //     target: "https://api.testing.demo.com",
+        //     ws: true,
+        //     changeOrigin: true
+        //   }
+        // }, //配置开发代理
+        host: '0.0.0.0',
+        stats: 'minimal',  //打包信息显示模式，quiet为true时无效
         historyApiFallback: true, //histrory模式下需要设置成true
         open: false,   //是否需要自动打开浏览器
-        port: 8080
+        quiet: false,   //构建起来静悄悄，同时隐藏警告信息
+        inline: true,   //是否将构建的warning和error输出到控制台
+        port: 10080
     }
 };

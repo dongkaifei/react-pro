@@ -1,0 +1,46 @@
+{
+    "parser": "babel-eslint",
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "plugins": [
+        "react"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
+    "rules": {
+        "semi": [
+            0
+        ],
+        "react/prop-types": [
+            0
+        ],
+        "react/no-children-prop": [
+            0
+        ],
+        "no-unused-vars": [
+            1
+        ]
+    },
+    "globals": {
+        "wx": "readonly",
+        "sa": "readonly",
+        "WeixinJSBridge": "readonly"
+    }
+}
